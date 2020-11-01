@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>はじめてのVue.js</title>
+    <script src="https://unpkg.com/vue@2.5.17"></script>
+</head>
+<body>
+    <div id="app">
+        <p>{{ items[0].name }}: {{ items[0].price }} {{ items[0].quantiry }}</p>
+        <p>小計: {{ totalPrice | numberWithDelimiter }}円</p>
+        <p>合計(税込み): {{ totalPriceWithTax | numberWithDelimiter }}円</p>
+        <p v-show="!canBuy">
+            {{ 1000 | numberWithDelimiter }}円以上からご購入いただけます
+        </p>
+    </div>
+    <script>
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                items: [
+                    {
+                        name: '鉛筆',
+                        price: 300,
+                        quantity: 4
+                    },
+                    {
+                        name: 'ノート',
+                        price: 400,
+                        quantity: 0
+                    },
+                    {
+                        name: '消しゴム',
+                        price: 500,
+                        quantity: 0
+                    },
+                ]
+            },
+            filters: {
+                numberWithDelimiter: function(value) {
+                    if (!value) return '0';
+                    return value.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')
+                }
+            },
+            computed: {
+                totalPrice: function() {
+                    return this.items.reduce(
+                        (sum, item) => {
+                            return sum + (item.price * item.quantity)
+                        },
+                        0);
+                },
+                totalPriceWithTax: function() {
+                    return Math.floor(this.totalPrice * 1.08)
+                },
+                canBuy: function() {
+                    return this.totalPrice >= 1000;
+                }
+            }
+        })
+    </script>
+</body>
+</html>
