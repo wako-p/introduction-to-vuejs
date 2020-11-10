@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js SPAのサンプルアプリケーション</title>
+</head>
+<body>
+    <div id="app">
+        <router-view></router-view>
+    </div>
+    <script src="https://unpkg.com/vue@2.5.17"></script>
+    <script src="https://unpkg.com/vue-router@3.0.1"></script>
+
+    <script type="text/x-template" id="user-list">
+        <div>
+            <div class="loading" v-if="loading">読み込み中...</div>
+            <div v-if="error" class="error">{{ error }}</div>
+            <div v-for="user in users" :key="user.id"><h2>{{ user.name }}</h2></div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="user-detail">
+        <div>
+            <div class="loading" v-if="loading">読み込み中...</div>
+            <div v-if="error" class="error">{{ error }}</div>
+            <div v-if="user">
+                <h2>{{ user.name }}</h2>
+                <p>{{ user.description }}</p>
+            </div>
+        </div>
+    </script>
+
+    <script>
+        //JSONを返す関数
+        const userData =  [
+                    {
+                        id: 1,
+                        name: 'Masahiro Shimokawabe',
+                        description: '品川に週2〜5日出勤しているエンジニアです。'
+                    },
+                    {
+                        id: 2,
+                        name: 'wako-p',
+                        description: 'jsでは絶対にvarを使用することは許されないエンジニアです。'
+                    }
+                ]
+
+        const getUser = function(userId, callback){
+            setTimeout(function() {
+                const filterdUsers = userData.filter( function (user) {
+                    return user.id === parseInt(userId, 10)
+                })
+                callback(null, filterdUsers && filterdUsers[0])
+            }, 1000)
+        }
+
+        const UserList = {
+            template: '#user-list',
+            data: function(){
+                return{
+                    loading: false,
+                    users: function(){ return[] },
+                    error: null
+                }
+            },
+            created: function(){
+                this.fetchData()
+            },
+            watch: {
+                '$route': 'fetchData'
+            },
+            methods: {
+                fetchData: function(){
+                    this.loading = true
+                    getUsers(( function(err, users){
+                        this.loading = false
+                        if(err){
+                            this.error = err.toString()
+                        }else{
+                            this.users = users
+                        }
+                    }).bind(this))
+                }
+            }
+        }
+
+        const UserDetail = {
+            template: '#user-detail',
+            data: function(){
+                return{
+                    loading: false,
+                    user: null,
+                    error: null
+                }
+            },
+            created: function(){
+                this.fetchData()
+            },
+            watch: {
+                '$route': 'fetchData'
+            },
+            methods: {
+                fetchData: function(){
+                    this.loading = true
+                    getUser( this.$route.params.userId, (function(err, user){
+                        this.loading = false
+                        if(err){
+                            this.error = err.toString()
+                        }else{
+                            this.user = user
+                        }
+                    }).bind(this))
+                }
+            }
+        }
+        const router = new VueRouter({
+            routes: [
+                {
+                    path: '/top',
+                    component: {
+                        template: '<div>トップページです。</div>'
+                    }
+                },
+                {
+                    path: '/users',
+                    component: UserList
+                },
+                {
+                    path: '/users/:userId',
+                    component: UserDetail
+                }
+            ]
+        });
+        const app = new Vue({
+            router: router
+        }).$mount("#app");
+
+    </script>
+</body>
+</html>
