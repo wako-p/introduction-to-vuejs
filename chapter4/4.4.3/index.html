@@ -34,56 +34,73 @@
 
     <script>
         //JSONを返す関数
-        const userData =  [
+        
+
+        const userData = [
+            {
+                id: 1,
+                name: 'Masahiro Shimokawabe',
+                description: '品川に週2〜5日出勤しているエンジニアです。'
+            },
+            {
+                id: 2,
+                name: 'wako-p',
+                description: 'jsでは絶対にvarを使用することは許されないエンジニアです。'
+            }
+        ]
+
+        const getUsers = function(callback) {
+            setTimeout(function() {
+                callback(null, [
                     {
                         id: 1,
-                        name: 'Masahiro Shimokawabe',
-                        description: '品川に週2〜5日出勤しているエンジニアです。'
+                        name: 'Masahiro Shimokawabe'
                     },
                     {
                         id: 2,
-                        name: 'wako-p',
-                        description: 'jsでは絶対にvarを使用することは許されないエンジニアです。'
+                        name: 'wako-p'
                     }
-                ]
-
-        const getUser = function(userId, callback){
-            setTimeout(function() {
-                const filterdUsers = userData.filter( function (user) {
-                    return user.id === parseInt(userId, 10)
-                })
-                callback(null, filterdUsers && filterdUsers[0])
+                ])
             }, 1000)
         }
 
         const UserList = {
             template: '#user-list',
-            data: function(){
-                return{
+            data: function() {
+                return {
                     loading: false,
                     users: function(){ return[] },
                     error: null
                 }
             },
-            created: function(){
+            created: function() {
                 this.fetchData()
             },
             watch: {
                 '$route': 'fetchData'
             },
             methods: {
-                fetchData: function(){
+                fetchData: function() {
                     this.loading = true
-                    getUsers(( function(err, users){
+                    getUsers((function(err, users) {
                         this.loading = false
-                        if(err){
+                        if(err) {
                             this.error = err.toString()
-                        }else{
+                        } else {
                             this.users = users
                         }
                     }).bind(this))
                 }
             }
+        }
+
+        const getUser = function(userId, callback) {
+            setTimeout(function() {
+                const filterdUsers = userData.filter(function (user) {
+                    return user.id === parseInt(userId, 10)
+                })
+                callback(null, filterdUsers && filterdUsers[0])
+            }, 1000)
         }
 
         const UserDetail = {
@@ -98,17 +115,17 @@
             created: function(){
                 this.fetchData()
             },
-            watch: {
-                '$route': 'fetchData'
-            },
+            // watch: {
+            //     '$route': 'fetchData'
+            // },
             methods: {
-                fetchData: function(){
+                fetchData: function() {
                     this.loading = true
-                    getUser( this.$route.params.userId, (function(err, user){
-                        this.loading = false
-                        if(err){
+                    getUser(this.$route.params.userId, (function(err, user) {
+                        this.loading = false;
+                        if (err) {
                             this.error = err.toString()
-                        }else{
+                        } else {
                             this.user = user
                         }
                     }).bind(this))
